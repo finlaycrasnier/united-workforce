@@ -229,7 +229,7 @@ function NodeCard({ node, depth = 0 }: { node: OrgNode; depth?: number }) {
 
 export default function OrgChartPage() {
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen">
       <DashboardSidebar />
       {/* Sidebar imported inline to avoid circular dep — swap for DashboardSidebar if preferred */}
       <div className="flex min-w-0 flex-1 flex-col">

@@ -333,7 +333,7 @@ export default function SettingsPage() {
   const totalImported = Object.values(instances).reduce((sum, i) => sum + i.workersImported, 0)
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen">
       <DashboardSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-border px-6 py-4">

@@ -24,7 +24,7 @@ const maxCost = Math.max(...MONTHLY_DATA.map(d => d.human + d.agent + d.robot))
 
 export default function AnalyticsPage() {
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen">
       <DashboardSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center border-b border-border px-6 py-4">
