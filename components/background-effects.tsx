@@ -16,15 +16,15 @@ export function BackgroundEffects() {
 
   useEffect(() => {
     setParticles(
-      Array.from({ length: 18 }, () => {
-        const size = 3 + Math.random() * 7
+      Array.from({ length: 22 }, () => {
+        const size = 4 + Math.random() * 8
         return {
           left: `${Math.random() * 100}%`,
           size,
           delay: `${Math.random() * -24}s`,
           duration: `${22 + Math.random() * 20}s`,
           drift: `${(Math.random() - 0.5) * 120}px`,
-          opacity: 0.15 + Math.random() * 0.35,
+          opacity: 0.4 + Math.random() * 0.4,
         }
       }),
     )
@@ -36,11 +36,12 @@ export function BackgroundEffects() {
       {particles.map((p, i) => (
         <span
           key={i}
-          className="absolute bottom-[-10vh] rounded-full bg-primary"
+          className="absolute bottom-[-10vh] rounded-full"
           style={{
             left: p.left,
             width: p.size,
             height: p.size,
+            backgroundColor: `oklch(0.68 0.14 ${40 + Math.random() * 20})`,
             animation: `united-float ${p.duration} linear ${p.delay} infinite`,
             ["--particle-drift" as string]: p.drift,
             ["--particle-opacity" as string]: p.opacity,
