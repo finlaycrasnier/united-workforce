@@ -2,6 +2,7 @@ import { Search, Bell, Plus } from "lucide-react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { KpiBar } from "@/components/kpi-bar"
 import { WorkforceTable } from "@/components/workforce-table"
+import { AlertsPanel } from "@/components/alerts-panel"
 import { Button } from "@/components/ui/button"
 
 export default function Page() {
@@ -39,6 +40,7 @@ export default function Page() {
 
         <main className="flex flex-1 flex-col gap-6 p-6">
           <KpiBar />
+          <AlertsPanel />
           <WorkforceTable />
         </main>
       </div>

@@ -123,3 +123,81 @@ export const workersWithExtensions: (Worker & { walletAddress?: string; ownershi
   ...w,
   ...workerExtensions[w.id],
 }))
+
+// Add this to the END of lib/workforce-data.ts
+// Credential types for Gap ④ — ephemeral vs static identity
+
+export type CredentialType = "ephemeral_oauth" | "static_api_key" | "certificate"
+export type CredentialRisk = "low" | "medium" | "high" | "critical"
+
+export interface WorkerCredential {
+  type: CredentialType
+  tokenId: string
+  issuedAt: string
+  expiresAt: string | null   // null = never expires = risk
+  riskLevel: CredentialRisk
+  riskReason?: string
+}
+
+export const workerCredentials: Record<string, WorkerCredential> = {
+  "a-2207": {
+    type: "ephemeral_oauth",
+    tokenId: "tok_atlas_ephemeral",
+    issuedAt: "2026-06-20T13:00:00Z",
+    expiresAt: "2026-06-20T14:00:00Z",
+    riskLevel: "low",
+  },
+  "a-2311": {
+    type: "static_api_key",
+    tokenId: "sk-prod-quill-legacy-2024",
+    issuedAt: "2024-06-01T00:00:00Z",
+    expiresAt: null,
+    riskLevel: "critical",
+    riskReason: "Static API key — 384 days old, no rotation policy",
+  },
+  "a-2390": {
+    type: "ephemeral_oauth",
+    tokenId: "tok_ledger_ephemeral",
+    issuedAt: "2026-06-20T12:00:00Z",
+    expiresAt: "2026-06-20T13:00:00Z",
+    riskLevel: "low",
+  },
+}
+
+export interface WorkerAlert {
+  id: string
+  workerId: string
+  workerName: string
+  severity: "info" | "warning" | "critical"
+  title: string
+  description: string
+  actions: { label: string; actionId: string }[]
+}
+
+export const workerAlerts: WorkerAlert[] = [
+  {
+    id: "alert-001",
+    workerId: "a-2311",
+    workerName: "Quill-3",
+    severity: "critical",
+    title: "Unowned agent with static credential",
+    description: "Quill-3 has no verified human owner and is running on a static API key issued 384 days ago. ZK verification rate is only 72%.",
+    actions: [
+      { label: "Assign owner", actionId: "assign_owner" },
+      { label: "Rotate credential", actionId: "rotate_credential" },
+      { label: "Pause agent", actionId: "pause_agent" },
+    ],
+  },
+  {
+    id: "alert-002",
+    workerId: "a-2207",
+    workerName: "Atlas-7",
+    severity: "info",
+    title: "Ephemeral token expiring soon",
+    description: "Atlas-7's OAuth token expires in 60 minutes. Auto-rotation is enabled — no action required.",
+    actions: [
+      { label: "Force rotate now", actionId: "rotate_credential" },
+      { label: "Dismiss", actionId: "dismiss" },
+    ],
+  },
+]

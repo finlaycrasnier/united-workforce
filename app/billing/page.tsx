@@ -36,69 +36,76 @@ export default function BillingPage() {
         <main className="flex flex-1 flex-col gap-6 p-6">
           {loading && <p className="text-muted-foreground">Loading...</p>}
           {!loading && !summary && <p className="text-destructive">Error loading billing data.</p>}
-          {summary && (() => {
-            const agentRobotSpend = summary.byWorkerType["AI Agent"] + summary.byWorkerType["Robot"];
-            const total = summary.byWorkerType.Human + summary.byWorkerType["AI Agent"] + summary.byWorkerType["Robot"];
-            return (
-              <>
-                <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-                  {[
-                    { label: "MTD Total Spend", value: `$${summary.totalMtdUsd.toLocaleString()}`, highlight: false },
-                    { label: "Human Equivalent Cost", value: `$${summary.humanEquivalentUsd.toLocaleString()}`, highlight: false },
-                    { label: "Automation Savings", value: `$${summary.savingsUsd.toLocaleString()}`, highlight: true },
-                    { label: "Agent & Robot Spend", value: `$${agentRobotSpend.toLocaleString()}`, highlight: false },
-                  ].map((card) => (
-                    <div key={card.label} className={clsx("rounded-xl border border-border p-5", card.highlight ? "bg-chart-3/10" : "bg-card")}>
-                      <p className={clsx("text-sm font-medium", card.highlight ? "text-chart-3" : "text-muted-foreground")}>{card.label}</p>
-                      <p className={clsx("mt-1 text-2xl font-semibold", card.highlight ? "text-chart-3" : "text-card-foreground")}>{card.value}</p>
-                    </div>
-                  ))}
+          {summary && (
+            <>
+              <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                <div className="rounded-xl border border-border bg-card p-5">
+                  <p className="text-sm font-medium text-muted-foreground">MTD Total Spend</p>
+                  <p className="mt-1 text-2xl font-semibold text-card-foreground">${summary.totalMtdUsd.toLocaleString()}</p>
                 </div>
-                <div className="rounded-xl border border-border bg-card p-5 space-y-3">
-                  <p className="text-sm font-semibold text-card-foreground">Spend by worker type</p>
-                  <div className="h-3 w-full flex rounded-full overflow-hidden gap-0.5">
-                    <div style={{ width: `${(summary.byWorkerType.Human / total) * 100}%` }} className="bg-primary/60" />
-                    <div style={{ width: `${(summary.byWorkerType["AI Agent"] / total) * 100}%` }} className="bg-chart-3" />
-                    <div style={{ width: `${(summary.byWorkerType["Robot"] / total) * 100}%` }} className="bg-primary" />
-                  </div>
-                  <div className="flex gap-5 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1.5"><span className="inline-block w-2 h-2 rounded-full bg-primary/60" />Human</span>
-                    <span className="flex items-center gap-1.5"><span className="inline-block w-2 h-2 rounded-full bg-chart-3" />AI Agent</span>
-                    <span className="flex items-center gap-1.5"><span className="inline-block w-2 h-2 rounded-full bg-primary" />Robot</span>
-                  </div>
+                <div className="rounded-xl border border-border bg-card p-5">
+                  <p className="text-sm font-medium text-muted-foreground">Human Equivalent Cost</p>
+                  <p className="mt-1 text-2xl font-semibold text-card-foreground">${summary.humanEquivalentUsd.toLocaleString()}</p>
                 </div>
-                <section className="rounded-xl border border-border bg-card overflow-hidden">
-                  <div className="px-5 py-4 border-b border-border">
-                    <p className="text-sm font-semibold text-card-foreground">Cost drivers — agents & robots</p>
-                  </div>
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-border text-xs text-muted-foreground">
-                        <th className="px-5 py-3 text-left font-medium">Worker</th>
-                        <th className="px-5 py-3 text-right font-medium">Trend</th>
-                        <th className="px-5 py-3 text-right font-medium">ROI score</th>
+                <div className="rounded-xl border border-border bg-chart-3/10 p-5">
+                  <p className="text-sm font-medium text-chart-3">Automation Savings</p>
+                  <p className="mt-1 text-2xl font-semibold text-chart-3">${summary.savingsUsd.toLocaleString()}</p>
+                </div>
+                <div className="rounded-xl border border-border bg-card p-5">
+                  <p className="text-sm font-medium text-muted-foreground">Agent & Robot Spend</p>
+                  <p className="mt-1 text-2xl font-semibold text-card-foreground">
+                    ${(summary.byWorkerType["AI Agent"] + summary.byWorkerType["Robot"]).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+                <p className="text-sm font-semibold text-card-foreground">Spend by worker type</p>
+                <div className="h-3 w-full flex rounded-full overflow-hidden gap-0.5">
+                  <div style={{ width: `${(summary.byWorkerType.Human / (summary.byWorkerType.Human + summary.byWorkerType["AI Agent"] + summary.byWorkerType["Robot"])) * 100}%` }} className="bg-primary/60" />
+                  <div style={{ width: `${(summary.byWorkerType["AI Agent"] / (summary.byWorkerType.Human + summary.byWorkerType["AI Agent"] + summary.byWorkerType["Robot"])) * 100}%` }} className="bg-chart-3" />
+                  <div style={{ width: `${(summary.byWorkerType["Robot"] / (summary.byWorkerType.Human + summary.byWorkerType["AI Agent"] + summary.byWorkerType["Robot"])) * 100}%` }} className="bg-primary" />
+                </div>
+                <div className="flex gap-5 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1.5"><span className="inline-block w-2 h-2 rounded-full bg-primary/60" />Human</span>
+                  <span className="flex items-center gap-1.5"><span className="inline-block w-2 h-2 rounded-full bg-chart-3" />AI Agent</span>
+                  <span className="flex items-center gap-1.5"><span className="inline-block w-2 h-2 rounded-full bg-primary" />Robot</span>
+                </div>
+              </div>
+
+              <section className="rounded-xl border border-border bg-card overflow-hidden">
+                <div className="px-5 py-4 border-b border-border">
+                  <p className="text-sm font-semibold text-card-foreground">Cost drivers — agents & robots</p>
+                </div>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-xs text-muted-foreground">
+                      <th className="px-5 py-3 text-left font-medium">Worker</th>
+                      <th className="px-5 py-3 text-right font-medium">Trend</th>
+                      <th className="px-5 py-3 text-right font-medium">ROI score</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {summary.topCostDrivers.map((d) => (
+                      <tr key={d.name} className="hover:bg-secondary/30 transition-colors">
+                        <td className="px-5 py-3 font-medium text-card-foreground">{d.name}</td>
+                        <td className="px-5 py-3 text-right">
+                          {d.trend === "up" && <ArrowUp className="inline w-4 h-4 text-destructive" />}
+                          {d.trend === "down" && <ArrowDown className="inline w-4 h-4 text-chart-3" />}
+                          {d.trend === "stable" && <Minus className="inline w-4 h-4 text-muted-foreground" />}
+                        </td>
+                        <td className="px-5 py-3 text-right">
+                          <span className={clsx("px-2 py-0.5 rounded-full text-xs font-medium border", getRoiColor(d.roiScore))}>
+                            {d.roiScore}
+                          </span>
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {summary.topCostDrivers.map((d) => (
-                        <tr key={d.name} className="hover:bg-secondary/30 transition-colors">
-                          <td className="px-5 py-3 font-medium text-card-foreground">{d.name}</td>
-                          <td className="px-5 py-3 text-right">
-                            {d.trend === "up" && <ArrowUp className="inline w-4 h-4 text-destructive" />}
-                            {d.trend === "down" && <ArrowDown className="inline w-4 h-4 text-chart-3" />}
-                            {d.trend === "stable" && <Minus className="inline w-4 h-4 text-muted-foreground" />}
-                          </td>
-                          <td className="px-5 py-3 text-right">
-                            <span className={clsx("px-2 py-0.5 rounded-full text-xs font-medium border", getRoiColor(d.roiScore))}>{d.roiScore}</span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </section>
-              </>
-            );
-          })()}
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            </>
+          )}
         </main>
       </div>
     </div>
