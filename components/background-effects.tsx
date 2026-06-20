@@ -9,6 +9,7 @@ interface Particle {
   duration: string
   drift: string
   opacity: number
+  hue: number
 }
 
 export function BackgroundEffects() {
@@ -16,15 +17,16 @@ export function BackgroundEffects() {
 
   useEffect(() => {
     setParticles(
-      Array.from({ length: 22 }, () => {
-        const size = 4 + Math.random() * 8
+      Array.from({ length: 28 }, () => {
+        const size = 8 + Math.random() * 18
         return {
           left: `${Math.random() * 100}%`,
           size,
-          delay: `${Math.random() * -24}s`,
-          duration: `${22 + Math.random() * 20}s`,
-          drift: `${(Math.random() - 0.5) * 120}px`,
-          opacity: 0.4 + Math.random() * 0.4,
+          delay: `${Math.random() * -30}s`,
+          duration: `${18 + Math.random() * 16}s`,
+          drift: `${(Math.random() - 0.5) * 100}px`,
+          opacity: 0.55 + Math.random() * 0.35,
+          hue: 28 + Math.random() * 24,
         }
       }),
     )
@@ -41,7 +43,8 @@ export function BackgroundEffects() {
             left: p.left,
             width: p.size,
             height: p.size,
-            backgroundColor: `oklch(0.68 0.14 ${40 + Math.random() * 20})`,
+            backgroundColor: `oklch(0.72 0.16 ${p.hue})`,
+            opacity: p.opacity,
             animation: `united-float ${p.duration} linear ${p.delay} infinite`,
             ["--particle-drift" as string]: p.drift,
             ["--particle-opacity" as string]: p.opacity,
