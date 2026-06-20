@@ -3,23 +3,20 @@
 import React, { useState, useEffect } from "react";
 import { workersWithExtensions as workers, Worker } from "@/lib/workforce-data";
 import { suggestPaymentEth, PayrollResult } from "@/lib/base-payroll";
-import { 
-  WorkerPayrollTable, 
-  TransactionHistoryTable, 
-  PaymentState, 
-  HistoryItem 
-} from "@/components/payroll-tables";
+import { DashboardSidebar } from "@/components/dashboard-sidebar";
+import { WorkerPayrollTable, TransactionHistoryTable, PaymentState, HistoryItem } from "@/components/payroll-tables";
 
 export default function PayrollPage() {
   const [paymentData, setPaymentData] = useState<Record<string, PaymentState>>({});
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
-  // Initialize payment data for workers with wallets
   useEffect(() => {
     const initialData: Record<string, PaymentState> = {};
     workers.forEach((worker) => {
       if (worker.walletAddress) {
-        const roi = calculateRoi(worker.humanEquivalentCost, worker.actualCost);
+        const roi = worker.humanEquivalentCost && worker.actualCost
+          ? Math.round(((worker.humanEquivalentCost - worker.actualCost) / worker.humanEquivalentCost) * 100)
+          : Math.round(worker.efficiency ?? 80);
         initialData[worker.id] = {
           amount: suggestPaymentEth(worker.tasksCompleted, roi).toString(),
           status: "idle",
@@ -29,92 +26,116 @@ export default function PayrollPage() {
     setPaymentData(initialData);
   }, []);
 
-  function calculateRoi(humanCost: number, actualCost: number): number {
-    if (humanCost === 0) return 0;
-    return Math.round(((humanCost - actualCost) / humanCost) * 100);
-  }
-
   const handleAmountChange = (id: string, val: string) => {
-    setPaymentData((prev) => ({
-      ...prev,
-      [id]: { ...prev[id], amount: val, status: "idle", error: undefined, txHash: undefined },
-    }));
+    setPaymentData((prev) => ({ ...prev, [id]: { ...prev[id], amount: val, status: "idle", error: undefined, txHash: undefined } }));
   };
 
   const processPayment = async (worker: Worker) => {
     const state = paymentData[worker.id];
     setPaymentData((prev) => ({ ...prev, [worker.id]: { ...state, status: "sending" } }));
-
     try {
       const response = await fetch("/api/payroll/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          workerId: worker.id,
-          walletAddress: worker.walletAddress,
-          amountEth: parseFloat(state.amount),
-        }),
+        body: JSON.stringify({ workerId: worker.id, walletAddress: worker.walletAddress, amountEth: parseFloat(state.amount) }),
       });
-
       const result: PayrollResult = await response.json();
-
       if (result.status === "confirmed") {
-        setPaymentData((prev) => ({
-          ...prev,
-          [worker.id]: { ...state, status: "success", txHash: result.txHash },
-        }));
-        setHistory((prev) => [
-          {
-            id: result.id,
-            workerName: worker.name,
-            amount: state.amount,
-            txHash: result.txHash,
-            status: "confirmed",
-            timestamp: new Date(),
-          },
-          ...prev,
-        ]);
+        setPaymentData((prev) => ({ ...prev, [worker.id]: { ...state, status: "success", txHash: result.txHash } }));
+        setHistory((prev) => [{ id: result.id, workerName: worker.name, amount: state.amount, txHash: result.txHash, status: "confirmed", timestamp: new Date() }, ...prev]);
       } else {
         throw new Error(result.error || "Payment failed");
       }
     } catch (err: any) {
-      setPaymentData((prev) => ({
-        ...prev,
-        [worker.id]: { ...state, status: "error", error: err.message },
-      }));
-      setHistory((prev) => [
-        {
-          id: crypto.randomUUID(),
-          workerName: worker.name,
-          amount: state.amount,
-          status: "failed",
-          timestamp: new Date(),
-        },
-        ...prev,
-      ]);
+      setPaymentData((prev) => ({ ...prev, [worker.id]: { ...state, status: "error", error: err.message } }));
+      setHistory((prev) => [{ id: crypto.randomUUID(), workerName: worker.name, amount: state.amount, status: "failed", timestamp: new Date() }, ...prev]);
     }
   };
 
   const eligibleWorkers = workers.filter((w) => !!w.walletAddress);
 
   return (
-    <main className="p-8 space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-card-foreground">Workforce Payroll</h1>
-        <p className="text-muted-foreground">Distribute ETH payments to AI Agents and Robotic units on Base L2.</p>
+    <div className="flex min-h-screen bg-background">
+      <DashboardSidebar />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex items-center border-b border-border px-6 py-4">
+          <div>
+            <h1
+cat > /Users/finlay/Documents/GitHub/united-workforce/app/payroll/page.tsx << 'ENDOFFILE'
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { workersWithExtensions as workers, Worker } from "@/lib/workforce-data";
+import { suggestPaymentEth, PayrollResult } from "@/lib/base-payroll";
+import { DashboardSidebar } from "@/components/dashboard-sidebar";
+import { WorkerPayrollTable, TransactionHistoryTable, PaymentState, HistoryItem } from "@/components/payroll-tables";
+
+export default function PayrollPage() {
+  const [paymentData, setPaymentData] = useState<Record<string, PaymentState>>({});
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+
+  useEffect(() => {
+    const initialData: Record<string, PaymentState> = {};
+    workers.forEach((worker) => {
+      if (worker.walletAddress) {
+        const roi = worker.humanEquivalentCost && worker.actualCost
+          ? Math.round(((worker.humanEquivalentCost - worker.actualCost) / worker.humanEquivalentCost) * 100)
+          : Math.round(worker.efficiency ?? 80);
+        initialData[worker.id] = {
+          amount: suggestPaymentEth(worker.tasksCompleted, roi).toString(),
+          status: "idle",
+        };
+      }
+    });
+    setPaymentData(initialData);
+  }, []);
+
+  const handleAmountChange = (id: string, val: string) => {
+    setPaymentData((prev) => ({ ...prev, [id]: { ...prev[id], amount: val, status: "idle", error: undefined, txHash: undefined } }));
+  };
+
+  const processPayment = async (worker: Worker) => {
+    const state = paymentData[worker.id];
+    setPaymentData((prev) => ({ ...prev, [worker.id]: { ...state, status: "sending" } }));
+    try {
+      const response = await fetch("/api/payroll/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId: worker.id, walletAddress: worker.walletAddress, amountEth: parseFloat(state.amount) }),
+      });
+      const result: PayrollResult = await response.json();
+      if (result.status === "confirmed") {
+        setPaymentData((prev) => ({ ...prev, [worker.id]: { ...state, status: "success", txHash: result.txHash } }));
+        setHistory((prev) => [{ id: result.id, workerName: worker.name, amount: state.amount, txHash: result.txHash, status: "confirmed", timestamp: new Date() }, ...prev]);
+      } else {
+        throw new Error(result.error || "Payment failed");
+      }
+    } catch (err: any) {
+      setPaymentData((prev) => ({ ...prev, [worker.id]: { ...state, status: "error", error: err.message } }));
+      setHistory((prev) => [{ id: crypto.randomUUID(), workerName: worker.name, amount: state.amount, status: "failed", timestamp: new Date() }, ...prev]);
+    }
+  };
+
+  const eligibleWorkers = workers.filter((w) => !!w.walletAddress);
+
+  return (
+    <div className="flex min-h-screen bg-background">
+      <DashboardSidebar />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex items-center border-b border-border px-6 py-4">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight text-foreground">Payroll</h1>
+            <p className="text-sm text-muted-foreground">On-chain ETH payments via Base L2</p>
+          </div>
+        </header>
+        <main className="flex flex-1 flex-col gap-6 p-6">
+          <WorkerPayrollTable workers={eligibleWorkers} paymentData={paymentData} onAmountChange={handleAmountChange} onProcessPayment={processPayment} />
+          <section className="space-y-3">
+            <h2 className="text-sm font-semibold text-card-foreground">Transaction history</h2>
+            <TransactionHistoryTable history={history} />
+          </section>
+        </main>
       </div>
-
-      <WorkerPayrollTable 
-        workers={eligibleWorkers}
-        paymentData={paymentData}
-        onAmountChange={handleAmountChange}
-        onProcessPayment={processPayment}
-      />
-
-      <section className="space-y-4">
-        <h2 className="text-xl font-bold text-card-foreground">Transaction History</h2>
-        <TransactionHistoryTable history={history} />
-      </section>
-    </main>
+    </div>
   );
 }
