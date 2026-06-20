@@ -1,11 +1,18 @@
+"use client"
+
+import { useState } from "react"
 import { Search, Bell, Plus } from "lucide-react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
-import { KpiBar } from "@/components/kpi-bar"
+import { CustomisableKpiBar } from "@/components/customisable-kpi-bar"
 import { WorkforceTable } from "@/components/workforce-table"
 import { AlertsPanel } from "@/components/alerts-panel"
+import { OnboardModal } from "@/components/onboard-modal"
 import { Button } from "@/components/ui/button"
 
 export default function Page() {
+  const [showOnboard, setShowOnboard] = useState(false)
+  const [extraWorkers, setExtraWorkers] = useState<any[]>([])
+
   return (
     <div className="flex min-h-screen bg-background">
       <DashboardSidebar />
@@ -23,15 +30,10 @@ export default function Page() {
               <Search className="size-4" />
               <span>Search workers...</span>
             </div>
-            <Button
-              variant="outline"
-              size="icon"
-              className="border-border bg-card text-muted-foreground"
-              aria-label="Notifications"
-            >
+            <Button variant="outline" size="icon" className="border-border bg-card text-muted-foreground" aria-label="Notifications">
               <Bell className="size-4" />
             </Button>
-            <Button>
+            <Button onClick={() => setShowOnboard(true)}>
               <Plus className="size-4" />
               <span className="hidden sm:inline">Onboard Worker</span>
             </Button>
@@ -39,11 +41,18 @@ export default function Page() {
         </header>
 
         <main className="flex flex-1 flex-col gap-6 p-6">
-          <KpiBar />
+          <CustomisableKpiBar />
           <AlertsPanel />
-          <WorkforceTable />
+          <WorkforceTable extraWorkers={extraWorkers} />
         </main>
       </div>
+
+      {showOnboard && (
+        <OnboardModal
+          onClose={() => setShowOnboard(false)}
+          onAdd={(w) => setExtraWorkers(prev => [...prev, w])}
+        />
+      )}
     </div>
   )
 }
