@@ -20,15 +20,18 @@ const typeConfig: Record<
 > = {
   Human: {
     icon: User,
-    className: "border-chart-2/40 bg-chart-2/15 text-chart-2",
+    className:
+      "border-[oklch(0.62_0.16_18/0.35)] bg-[oklch(0.62_0.16_18/0.12)] text-[oklch(0.52_0.16_18)]",
   },
   "AI Agent": {
     icon: Bot,
-    className: "border-primary/40 bg-primary/15 text-primary",
+    className:
+      "border-[oklch(0.72_0.13_45/0.4)] bg-[oklch(0.72_0.13_45/0.16)] text-[oklch(0.5_0.13_42)]",
   },
   Robot: {
     icon: Cpu,
-    className: "border-chart-3/40 bg-chart-3/15 text-chart-3",
+    className:
+      "border-[oklch(0.7_0.11_85/0.4)] bg-[oklch(0.7_0.11_85/0.18)] text-[oklch(0.46_0.08_85)]",
   },
 }
 
@@ -84,8 +87,8 @@ export function WorkforceTable() {
   )
 
   return (
-    <section className="rounded-xl border border-border bg-card">
-      <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between">
+    <section className="overflow-hidden rounded-2xl bg-card/70 shadow-[var(--shadow-soft)] backdrop-blur-md">
+      <div className="flex flex-col gap-4 border-b border-border/60 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold tracking-tight text-card-foreground">
             Active Workforce
@@ -94,7 +97,7 @@ export function WorkforceTable() {
             {rows.length} {rows.length === 1 ? "worker" : "workers"} across humans, agents, and robots
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-1 rounded-lg border border-border bg-secondary/40 p-1">
+        <div className="flex flex-wrap items-center gap-1 rounded-xl border border-border/60 bg-secondary/50 p-1">
           {filters.map((f) => (
             <button
               key={f}

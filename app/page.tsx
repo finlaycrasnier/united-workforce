@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button"
 
 export default function Page() {
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen">
       <DashboardSidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between gap-4 border-b border-border px-6 py-4">
+        <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-border/60 bg-background/60 px-6 py-4 backdrop-blur-xl">
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-foreground">Workforce</h1>
             <p className="text-sm text-muted-foreground">
@@ -18,7 +18,7 @@ export default function Page() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="hidden items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm text-muted-foreground md:flex">
+            <div className="hidden items-center gap-2 rounded-md border border-border bg-card/70 px-3 py-2 text-sm text-muted-foreground backdrop-blur-sm md:flex">
               <Search className="size-4" />
               <span>Search workers...</span>
             </div>
@@ -37,7 +37,7 @@ export default function Page() {
           </div>
         </header>
 
-        <main className="flex flex-1 flex-col gap-6 p-6">
+        <main className="united-fade-up flex flex-1 flex-col gap-6 p-6">
           <KpiBar />
           <WorkforceTable />
         </main>
