@@ -46,7 +46,7 @@ function KpiCard({ kpi, onRemove, dragging }: { kpi: KpiDefinition; onRemove: (i
   return (
     <div
       className={cn(
-        "group relative rounded-xl border border-border bg-card p-5 flex-1 min-w-[180px] transition-all",
+        "group relative rounded-xl border border-border bg-card p-5 min-w-[220px] flex-1 transition-all",
         dragging && "opacity-50 scale-95",
       )}
       draggable
@@ -65,7 +65,7 @@ function KpiCard({ kpi, onRemove, dragging }: { kpi: KpiDefinition; onRemove: (i
       </button>
 
       <div className="flex items-start justify-between mb-2">
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide pr-4">{kpi.label}</p>
+        <p className="text-xs font-medium text-muted-foreground pr-6 leading-tight">{kpi.label}</p>
         <div className={cn("p-1.5 rounded-lg bg-secondary", isBad ? "bg-destructive/10" : "")}>
           <Icon className={cn("size-4", isBad ? "text-destructive" : CATEGORY_COLOR[kpi.category])} />
         </div>
@@ -136,7 +136,7 @@ export function CustomisableKpiBar() {
             onDrop={e => handleDrop(e, kpi.id)}
             onDragEnd={handleDragEnd}
             className={cn(
-              "flex-1 min-w-[180px] transition-all",
+              "min-w-[220px] flex-1 transition-all",
               dragOverId === kpi.id && draggingId !== kpi.id && "scale-105 ring-2 ring-primary ring-offset-1 ring-offset-background rounded-xl"
             )}
           >
