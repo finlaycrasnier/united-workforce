@@ -11,6 +11,11 @@ export interface Worker {
   tasksCompleted: number
   efficiency: number
   status: WorkerStatus
+  walletAddress?: string
+  ownershipVerified?: boolean
+  zkVerificationRate?: number
+  humanEquivalentCost?: number
+  actualCost?: number
 }
 
 export const workers: Worker[] = [
@@ -103,3 +108,18 @@ export const workers: Worker[] = [
     status: "Flagged",
   },
 ]
+
+// Wallet and verification fields added for Base payroll, FLock, and zkVerify
+// Patching existing workers inline via module augmentation workaround:
+// These are applied as overrides when imported by payroll/billing pages.
+export const workerExtensions: Record<string, Partial<Worker>> = {
+  "a-2207": { walletAddress: "0x742d35Cc6634C0532925a3b8D4C9b5A9E8f1234a", ownershipVerified: true, zkVerificationRate: 0.98 },
+  "a-2311": { walletAddress: "0x8ba1f109551bD432803012645Ac136ddd64DBA72", ownershipVerified: false, zkVerificationRate: 0.72 },
+  "a-2390": { walletAddress: "0x1CBd3b2770909D4e10f157cABC84C7264073C9Ec", ownershipVerified: true, zkVerificationRate: 0.96 },
+  "r-0031": { walletAddress: "0x4B0897b0513fdC7C541B6d9D7E929C4e5364D2dB" },
+}
+
+export const workersWithExtensions: (Worker & { walletAddress?: string; ownershipVerified?: boolean; zkVerificationRate?: number; humanEquivalentCost?: number; actualCost?: number })[] = workers.map(w => ({
+  ...w,
+  ...workerExtensions[w.id],
+}))

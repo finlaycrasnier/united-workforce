@@ -1,0 +1,74 @@
+---
+description: 'United — Unified Workforce Management. Next.js 14 app with App Router, TypeScript, Tailwind CSS, and shadcn/ui. Adds billing, payroll, ownership verification, and ZK proof features to an existing workforce dashboard.'
+---
+
+***definitions***
+
+- :Worker: is a managed entity defined in `lib/workforce-data.ts` as the `Worker` interface with subtypes `"Human"`, `"AI Agent"`, and `"Robot"`.
+- :WalletAddress: is a Base L2 Ethereum address starting with `0x`, exactly 42 characters long, assigned to every AI Agent and Robot.
+- :OwnershipVerification: is a boolean field `ownershipVerified` on :Worker: indicating a verified FLock.io link to an accountable human.
+- :ZKVerificationRate: is a float `zkVerificationRate` between 0.0 and 1.0 on :Worker: indicating what fraction of an agent's tasks have cryptographic proof.
+- :ROIScore: is an integer 0 to 100 calculated as humanEquivalentCost minus actualCost divided by humanEquivalentCost multiplied by 100.
+- :MockMode: is the fallback behaviour when an API key environment variable is absent. All integrations must work in :MockMode:.
+- :BillingPage: is the page at `app/billing/page.tsx` showing workforce cost analytics.
+- :PayrollPage: is the page at `app/payroll/page.tsx` for sending ETH payments to workers.
+- :WorkforceTable: is the component at `components/workforce-table.tsx` showing all workers.
+- :DashboardSidebar: is the component at `components/dashboard-sidebar.tsx` for navigation.
+
+***implementation reqs***
+
+- Add `walletAddress?: string`, `ownershipVerified?: boolean`, and `zkVerificationRate?: number` to the `Worker` interface in `lib/workforce-data.ts`. Do not remove or rename any existing fields.
+- Set `walletAddress: "0x742d35Cc6634C0532925a3b8D4C9b5A9E8f1234a"`, `ownershipVerified: true`, `zkVerificationRate: 0.98` on worker `a-2207` in `lib/workforce-data.ts`.
+- Set `walletAddress: "0x8ba1f109551bD432803012645Ac136ddd64DBA72"`, `ownershipVerified: false`, `zkVerificationRate: 0.72` on worker `a-2311` in `lib/workforce-data.ts`.
+- Set `walletAddress: "0x1CBd3b2770909D4e10f157cABC84C7264073C9Ec"`, `ownershipVerified: true`, `zkVerificationRate: 0.96` on worker `a-2390` in `lib/workforce-data.ts`.
+- Set `walletAddress: "0x4B0897b0513fdC7C541B6d9D7E929C4e5364D2dB"` on worker `r-0031` in `lib/workforce-data.ts`.
+- Create `lib/solvimon.ts` exporting `getWorkforceUsageSummary(): Promise<WorkforceUsageSummary>` and `trackUsage(event): Promise<void>`. When `SOLVIMON_API_KEY` is absent use :MockMode: returning totalMtdUsd 58340, humanEquivalentUsd 98200, savingsUsd 39860, byWorkerType Human 49700 AI Agent 4450 Robot 4190, and topCostDrivers with Atlas-7 roiScore 91 trend down, Hauler Unit R-31 roiScore 78 trend stable, Quill-3 roiScore 54 trend up, Ledger-9 roiScore 88 trend stable.
+- Create `lib/base-payroll.ts` exporting `sendPayroll(req): Promise<PayrollResult>` and `suggestPaymentEth(tasksCompleted, roiScore): number`. In :MockMode: sendPayroll waits 1800ms and returns a fake txHash of `0x` followed by 64 random hex chars with 4% failure rate. suggestPaymentEth returns `parseFloat(Math.min(tasksCompleted * 0.05 * (roiScore / 100) / 3420, 0.05).toFixed(6))`.
+- Create `lib/flock.ts` exporting `verifyOwnership(agentId): Promise<OwnershipVerification>`. In :MockMode: a-2207 returns verified true ownerName Maya Okonkwo, a-2311 returns verified false, a-2390 returns verified true ownerName Sofia Lindqvist, all others return verified false.
+- Create `lib/zkverify.ts` exporting `getAgentVerificationSummary(agentId): Promise<AgentVerificationSummary>`. In :MockMode: a-2207 returns verificationRate 0.98 totalProofs 12480, a-2311 returns verificationRate 0.72 totalProofs 8760, a-2390 returns verificationRate 0.96 totalProofs 15230, all others return verificationRate 0.
+- Create `app/api/billing/summary/route.ts` as a Next.js GET route handler calling `getWorkforceUsageSummary()` and returning `NextResponse.json(result)`.
+- Create `app/api/payroll/send/route.ts` as a Next.js POST route handler calling `sendPayroll(body)` and returning the result with an `id` field and a `status` field set to `"confirmed"` or `"failed"`.
+- Add `"viem": "^2.0.0"` to dependencies in `package.json`.
+- All new page components that use hooks must have `"use client"` as the first line.
+- All new files must use only existing CSS variable tokens: `bg-card`, `border-border`, `text-card-foreground`, `text-muted-foreground`, `bg-primary`, `text-primary`, `bg-destructive`, `text-destructive`, `bg-chart-3`, `text-chart-3`. No hardcoded hex colours.
+
+***functional specs***
+
+- :DashboardSidebar: must use `usePathname()` from `next/navigation` and `Link` from `next/link` for navigation. Path mapping: Dashboard and Workforce both go to `/`, Billing to `/billing`, Payroll to `/payroll`, Analytics to `/analytics`, Settings to `/settings`. The active item is highlighted when `pathname === href`. All existing visual styles remain unchanged.
+
+  ***acceptance tests***
+
+  - Clicking the Billing nav item navigates to `/billing`.
+  - Clicking the Payroll nav item navigates to `/payroll`.
+  - The active nav item has the active highlight class applied.
+
+- :WorkforceTable: must show a green `CheckCircle` icon from lucide-react after the name of any AI Agent where `ownershipVerified === true`, and a red `AlertCircle` icon where `ownershipVerified === false`. No other columns or styles change.
+
+  ***acceptance tests***
+
+  - The Atlas-7 row renders a `CheckCircle` icon.
+  - The Quill-3 row renders an `AlertCircle` icon.
+
+- :WorkforceTable: must show a ZK badge in the Efficiency cell of every AI Agent row displaying the zkVerificationRate as a percentage followed by the text `ZK`. The badge uses `bg-primary/10 text-primary` if rate is 0.90 or above, `bg-chart-3/15 text-chart-3` if rate is 0.70 or above, `bg-destructive/15 text-destructive` if rate is below 0.70.
+
+  ***acceptance tests***
+
+  - The Atlas-7 efficiency cell contains the text `98% ZK`.
+  - The Quill-3 efficiency cell contains the text `72% ZK`.
+
+- :BillingPage: must fetch data from `GET /api/billing/summary` on mount, show a loading state while fetching, and display four KPI cards: MTD Total Spend, Human Equivalent Cost, Automation Savings with green highlight, and Agent and Robot Spend. It must also show a horizontal stacked bar with spend split by worker type and a table of cost drivers for agents and robots only with columns Worker, Type, MTD Cost, Trend as arrows, and ROI Score badge green if 75 or above, amber if 50 or above, red if below 50. Card styles must match `rounded-xl border border-border bg-card`.
+
+  ***acceptance tests***
+
+  - :BillingPage: renders without error when the API returns mock data.
+  - The Automation Savings card displays a positive number.
+  - The Quill-3 row ROI badge uses the destructive colour class because its roiScore of 54 is below 75.
+
+- :PayrollPage: must list every worker from `lib/workforce-data.ts` that has a `walletAddress`. The table has columns: Worker with type badge, Wallet truncated to first 6 and last 4 characters, Tasks Completed, Amount ETH as an editable number input pre-filled with `suggestPaymentEth()`, and a Pay on Base button. The button calls `POST /api/payroll/send`, is disabled while pending, and shows `Sending...` while pending. On success show the txHash as a link to `https://sepolia.basescan.org/tx/{txHash}`. On failure show an inline error message. A transaction history section below the table lists all payments made in the current session.
+
+  ***acceptance tests***
+
+  - :PayrollPage: renders exactly 4 rows for workers a-2207, a-2311, a-2390, and r-0031.
+  - The Pay on Base button is disabled while a transaction is in flight.
+  - A successful transaction renders a link whose href contains `basescan.org`.
+  - A failed transaction renders an inline error message.

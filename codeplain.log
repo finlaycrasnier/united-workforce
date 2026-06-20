@@ -1,0 +1,31 @@
+[00:00:00] INFO codeplain: -------------------------------------
+           Module: united
+           Rendering functionality 1:
+           - :DashboardSidebar: must use `usePathname()` from `next/navigation` and `Link` from `next/link` for navigation. Path mapping: Dashboard and Workforce both go to `/`, Billing to `/billing`, Payroll to `/payroll`, Analytics to `/analytics`, Settings to `/settings`. The active item is highlighted when `pathname === href`. All existing visual styles remain unchanged.
+           -------------------------------------
+[00:00:33] INFO codeplain: Refactoring the generated code...
+[00:00:35] INFO codeplain: -------------------------------------
+           Module: united
+           Rendering functionality 2:
+           - :WorkforceTable: must show a green `CheckCircle` icon from lucide-react after the name of any AI Agent where `ownershipVerified === true`, and a red `AlertCircle` icon where `ownershipVerified === false`. No other columns or styles change.
+           -------------------------------------
+[00:01:08] INFO codeplain: Refactoring the generated code...
+[00:01:09] INFO codeplain: -------------------------------------
+           Module: united
+           Rendering functionality 3:
+           - :WorkforceTable: must show a ZK badge in the Efficiency cell of every AI Agent row displaying the zkVerificationRate as a percentage followed by the text `ZK`. The badge uses `bg-primary/10 text-primary` if rate is 0.90 or above, `bg-chart-3/15 text-chart-3` if rate is 0.70 or above, `bg-destructive/15 text-destructive` if rate is below 0.70.
+           -------------------------------------
+[00:01:16] INFO codeplain: Refactoring the generated code...
+[00:01:17] INFO codeplain: -------------------------------------
+           Module: united
+           Rendering functionality 4:
+           - :BillingPage: must fetch data from `GET /api/billing/summary` on mount, show a loading state while fetching, and display four KPI cards: MTD Total Spend, Human Equivalent Cost, Automation Savings with green highlight, and Agent and Robot Spend. It must also show a horizontal stacked bar with spend split by worker type and a table of cost drivers for agents and robots only with columns Worker, Type, MTD Cost, Trend as arrows, and ROI Score badge green if 75 or above, amber if 50 or above, red if below 50. Card styles must match `rounded-xl border border-border bg-card`.
+           -------------------------------------
+[00:01:29] INFO codeplain: Refactoring the generated code...
+[00:01:30] INFO codeplain: -------------------------------------
+           Module: united
+           Rendering functionality 5:
+           - :PayrollPage: must list every worker from `lib/workforce-data.ts` that has a `walletAddress`. The table has columns: Worker with type badge, Wallet truncated to first 6 and last 4 characters, Tasks Completed, Amount ETH as an editable number input pre-filled with `suggestPaymentEth()`, and a Pay on Base button. The button calls `POST /api/payroll/send`, is disabled while pending, and shows `Sending...` while pending. On success show the txHash as a link to `https://sepolia.basescan.org/tx/{txHash}`. On failure show an inline error message. A transaction history section below the table lists all payments made in the current session.
+           -------------------------------------
+[00:02:28] INFO codeplain: Refactoring the generated code...
+[00:02:47] INFO codeplain: [#79FC96]Render of module united completed successfully.[/#79FC96]
