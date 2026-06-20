@@ -1,7 +1,7 @@
 "use client"
 
 import { useChat } from "@ai-sdk/react"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { X, Send, Bot, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -16,14 +16,29 @@ const SUGGESTED_PROMPTS = [
 
 export function WorkforceAssistant() {
   const [open, setOpen] = useState(false)
-  const { messages, input, handleInputChange, handleSubmit, isLoading, setInput } = useChat({
-    api: "/api/chat",
-  })
+  const inputRef = useRef<HTMLInputElement>(null)
+  const {
+    messages,
+    input,
+    setInput,
+    append,
+    isLoading,
+  } = useChat({ api: "/api/chat" })
 
   const safeInput = input ?? ""
 
-  const handleSuggest = (prompt: string) => {
-    setInput(prompt)
+  const send = async () => {
+    const text = safeInput.trim()
+    if (!text || isLoading) return
+    setInput("")
+    await append({ role: "user", content: text })
+  }
+
+  const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      send()
+    }
   }
 
   return (
@@ -64,7 +79,10 @@ export function WorkforceAssistant() {
                   {SUGGESTED_PROMPTS.map(p => (
                     <button
                       key={p}
-                      onClick={() => handleSuggest(p)}
+                      onClick={() => {
+                        setInput("")
+                        append({ role: "user", content: p })
+                      }}
                       className="rounded-full border border-border bg-secondary px-2.5 py-1 text-xs text-muted-foreground hover:border-primary hover:text-primary transition-colors"
                     >
                       {p}
@@ -108,21 +126,24 @@ export function WorkforceAssistant() {
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="border-t border-border p-3 flex gap-2">
+          <div className="border-t border-border p-3 flex gap-2">
             <input
+              ref={inputRef}
               value={safeInput}
-              onChange={handleInputChange}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKey}
               placeholder="Ask about your workforce..."
               className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <button
-              type="submit"
+              type="button"
+              onClick={send}
               disabled={isLoading || !safeInput.trim()}
               className="rounded-lg bg-primary px-3 py-2 text-primary-foreground disabled:opacity-40 transition-opacity hover:opacity-90"
             >
               <Send className="size-4" />
             </button>
-          </form>
+          </div>
         </div>
       )}
     </>
