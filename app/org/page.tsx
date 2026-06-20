@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { User, Bot, Cpu, CheckCircle, AlertCircle, ShieldCheck, ShieldOff } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { DashboardSidebar } from "@/components/dashboard-sidebar"
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 // Mirrors workforce-data.ts — update if you add workers
@@ -229,6 +230,7 @@ function NodeCard({ node, depth = 0 }: { node: OrgNode; depth?: number }) {
 export default function OrgChartPage() {
   return (
     <div className="flex min-h-screen bg-background">
+      <DashboardSidebar />
       {/* Sidebar imported inline to avoid circular dep — swap for DashboardSidebar if preferred */}
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-border px-6 py-4">

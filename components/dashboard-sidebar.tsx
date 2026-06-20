@@ -11,6 +11,7 @@ import {
   Settings,
   Boxes,
   Network,
+  Plug,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
