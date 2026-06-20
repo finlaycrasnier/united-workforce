@@ -4,11 +4,9 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
-  Users,
   CreditCard,
   Wallet,
   BarChart3,
-  Settings,
   Boxes,
   Network,
   Plug,
@@ -18,14 +16,12 @@ import { cn } from "@/lib/utils"
 
 const navItems = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
-  { label: "Workforce", href: "/workforce", icon: Users },
   { label: "Billing", href: "/billing", icon: CreditCard },
   { label: "Payroll", href: "/payroll", icon: Wallet },
   { label: "Analytics", href: "/analytics", icon: BarChart3 },
   { label: "Org Chart", href: "/org", icon: Network },
-  { label: "Integrations", href: "/integrations", icon: Plug },
+  { label: "Integrations", href: "/settings", icon: Plug },
   { label: "Pricing", href: "/pricing", icon: Tag },
-  { label: "Settings", href: "/settings", icon: Settings },
 ]
 
 export function DashboardSidebar() {
@@ -44,7 +40,7 @@ export function DashboardSidebar() {
 
       <nav className="flex flex-1 flex-col gap-1" aria-label="Primary">
         {navItems.map(({ label, href, icon: Icon }) => {
-          const isActive = pathname === href
+          const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href)
           return (
             <Link
               key={label}
