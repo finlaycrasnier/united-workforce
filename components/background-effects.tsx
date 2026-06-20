@@ -9,7 +9,7 @@ interface Particle {
   duration: number
   delay: number
   drift: number
-  opacity: number
+  startBottom: number
 }
 
 export function BackgroundEffects() {
@@ -17,14 +17,14 @@ export function BackgroundEffects() {
 
   useEffect(() => {
     setParticles(
-      Array.from({ length: 24 }, (_, i) => ({
+      Array.from({ length: 65 }, (_, i) => ({
         id: i,
         left: Math.random() * 100,
-        size: 10 + Math.random() * 18,
-        duration: 18 + Math.random() * 15,
-        delay: -(Math.random() * 25),
+        size: 8 + Math.random() * 14,
+        duration: 18 + Math.random() * 14,
+        delay: Math.random() * 8,
         drift: (Math.random() - 0.5) * 120,
-        opacity: 0.18 + Math.random() * 0.25,
+        startBottom: Math.random() * 100,
       }))
     )
   }, [])
@@ -34,15 +34,19 @@ export function BackgroundEffects() {
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
     >
-      <div
-        className="absolute inset-0 united-animated-bg"
-      />
+      <div className="united-animated-bg absolute inset-0" />
       <style>{`
-        @keyframes particleFloat {
-          0% { transform: translate3d(0,0,0); opacity: 0; }
-          10% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translate3d(var(--x), -120vh, 0); opacity: 0; }
+        @keyframes rise {
+          from {
+            transform: translateY(0) translateX(0px);
+            opacity: 0;
+          }
+          5% { opacity: 0.55; }
+          95% { opacity: 0.55; }
+          to {
+            transform: translateY(-105vh) translateX(var(--drift, 0px));
+            opacity: 0;
+          }
         }
       `}</style>
       {particles.map((p) => (
@@ -52,16 +56,19 @@ export function BackgroundEffects() {
             {
               position: "absolute",
               left: `${p.left}%`,
-              bottom: "-40px",
+              bottom: `${p.startBottom}vh`,
               width: `${p.size}px`,
               height: `${p.size}px`,
               borderRadius: "9999px",
-              background: "rgba(255, 160, 122, 0.55)",
-              filter: "blur(1px)",
-              opacity: p.opacity,
-              animation: `particleFloat ${p.duration}s linear ${p.delay}s infinite`,
-              willChange: "transform, opacity",
-              "--x": `${p.drift}px`,
+              background: "rgba(255, 150, 110, 0.5)",
+              filter: "blur(0.5px)",
+              animationName: "rise",
+              animationDuration: `${p.duration}s`,
+              animationDelay: `${p.delay}s`,
+              animationTimingFunction: "linear",
+              animationIterationCount: "infinite",
+              animationFillMode: "both",
+              "--drift": `${p.drift}px`,
             } as React.CSSProperties
           }
         />
