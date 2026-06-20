@@ -18,12 +18,12 @@ import { cn } from "@/lib/utils"
 
 const navItems = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
-  { label: "Workforce", href: "/", icon: Users },
+  { label: "Workforce", href: "/workforce", icon: Users },
   { label: "Billing", href: "/billing", icon: CreditCard },
   { label: "Payroll", href: "/payroll", icon: Wallet },
   { label: "Analytics", href: "/analytics", icon: BarChart3 },
   { label: "Org Chart", href: "/org", icon: Network },
-  { label: "Integrations", href: "/settings", icon: Plug },
+  { label: "Integrations", href: "/integrations", icon: Plug },
   { label: "Pricing", href: "/pricing", icon: Tag },
   { label: "Settings", href: "/settings", icon: Settings },
 ]
