@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
   Users,
@@ -13,16 +14,16 @@ import {
 import { cn } from "@/lib/utils"
 
 const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard },
-  { label: "Workforce", icon: Users },
-  { label: "Billing", icon: CreditCard },
-  { label: "Payroll", icon: Wallet },
-  { label: "Analytics", icon: BarChart3 },
-  { label: "Settings", icon: Settings },
+  { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Workforce", href: "/", icon: Users },
+  { label: "Billing", href: "/billing", icon: CreditCard },
+  { label: "Payroll", href: "/payroll", icon: Wallet },
+  { label: "Analytics", href: "/analytics", icon: BarChart3 },
+  { label: "Settings", href: "/settings", icon: Settings },
 ]
 
 export function DashboardSidebar() {
-  const [active, setActive] = useState("Workforce")
+  const pathname = usePathname()
 
   return (
     <aside className="flex w-16 flex-col items-center gap-2 border-r border-sidebar-border bg-sidebar py-4 lg:w-60 lg:items-stretch lg:px-3">
@@ -36,12 +37,15 @@ export function DashboardSidebar() {
       </div>
 
       <nav className="flex flex-1 flex-col gap-1" aria-label="Primary">
-        {navItems.map(({ label, icon: Icon }) => {
-          const isActive = active === label
+        {navItems.map(({ label, href, icon: Icon }) => {
+          const isActive =
+            href === "/"
+              ? pathname === "/"
+              : pathname.startsWith(href)
           return (
-            <button
+            <Link
               key={label}
-              onClick={() => setActive(label)}
+              href={href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex items-center justify-center gap-3 rounded-md px-0 py-2.5 text-sm font-medium transition-colors lg:justify-start lg:px-3",
@@ -53,7 +57,7 @@ export function DashboardSidebar() {
             >
               <Icon className="size-5 shrink-0" />
               <span className="hidden lg:block">{label}</span>
-            </button>
+            </Link>
           )
         })}
       </nav>
