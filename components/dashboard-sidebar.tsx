@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
   Users,
@@ -9,20 +10,26 @@ import {
   BarChart3,
   Settings,
   Boxes,
+  Network,
+  Plug,
+  Tag,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard },
-  { label: "Workforce", icon: Users },
-  { label: "Billing", icon: CreditCard },
-  { label: "Payroll", icon: Wallet },
-  { label: "Analytics", icon: BarChart3 },
-  { label: "Settings", icon: Settings },
+  { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Workforce", href: "/", icon: Users },
+  { label: "Billing", href: "/billing", icon: CreditCard },
+  { label: "Payroll", href: "/payroll", icon: Wallet },
+  { label: "Analytics", href: "/analytics", icon: BarChart3 },
+  { label: "Org Chart", href: "/org", icon: Network },
+  { label: "Integrations", href: "/settings", icon: Plug },
+  { label: "Pricing", href: "/pricing", icon: Tag },
+  { label: "Settings", href: "/settings", icon: Settings },
 ]
 
 export function DashboardSidebar() {
-  const [active, setActive] = useState("Workforce")
+  const pathname = usePathname()
 
   return (
     <aside className="sticky top-0 flex h-screen w-16 flex-col items-center gap-2 border-r border-sidebar-border/60 bg-sidebar/70 py-4 backdrop-blur-xl lg:w-60 lg:items-stretch lg:px-3">
@@ -36,12 +43,12 @@ export function DashboardSidebar() {
       </div>
 
       <nav className="flex flex-1 flex-col gap-1" aria-label="Primary">
-        {navItems.map(({ label, icon: Icon }) => {
-          const isActive = active === label
+        {navItems.map(({ label, href, icon: Icon }) => {
+          const isActive = pathname === href
           return (
-            <button
+            <Link
               key={label}
-              onClick={() => setActive(label)}
+              href={href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex items-center justify-center gap-3 rounded-md px-0 py-2.5 text-sm font-medium transition-colors lg:justify-start lg:px-3",
@@ -53,7 +60,7 @@ export function DashboardSidebar() {
             >
               <Icon className="size-5 shrink-0" />
               <span className="hidden lg:block">{label}</span>
-            </button>
+            </Link>
           )
         })}
       </nav>
