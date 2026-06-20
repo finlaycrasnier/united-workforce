@@ -19,6 +19,7 @@ const navItems = [
   { label: "Billing", href: "/billing", icon: CreditCard },
   { label: "Payroll", href: "/payroll", icon: Wallet },
   { label: "Analytics", href: "/analytics", icon: BarChart3 },
+  { label: "Org Chart", href: "/org", icon: Network },
   { label: "Settings", href: "/settings", icon: Settings },
 ]
 
