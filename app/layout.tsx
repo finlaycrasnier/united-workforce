@@ -6,16 +6,11 @@ import { CursorTrail } from '@/components/cursor-trail'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
+const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'United — Unified Workforce Management',
-  description:
-    'Manage your mixed workforce of humans, autonomous AI agents, and robotic workers in one unified platform.',
-  generator: 'v0.app',
+  description: 'Manage your mixed workforce of humans, autonomous AI agents, and robotic workers in one unified platform.',
 }
 
 export const viewport: Viewport = {
@@ -23,20 +18,13 @@ export const viewport: Viewport = {
   themeColor: '#f7ede0',
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} bg-background`}
-    >
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} bg-background`}>
       <body className="font-sans antialiased">
         <BackgroundEffects />
         <CursorTrail />
-        <div className="relative z-10">{children}</div>
+        <div className="relative z-20">{children}</div>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
