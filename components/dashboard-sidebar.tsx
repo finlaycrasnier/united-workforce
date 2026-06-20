@@ -12,6 +12,7 @@ import {
   Boxes,
   Network,
   Plug,
+  Tag,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -23,6 +24,7 @@ const navItems = [
   { label: "Analytics", href: "/analytics", icon: BarChart3 },
   { label: "Org Chart", href: "/org", icon: Network },
   { label: "Integrations", href: "/settings", icon: Plug },
+  { label: "Pricing", href: "/pricing", icon: Tag },
   { label: "Settings", href: "/settings", icon: Settings },
 ]
 

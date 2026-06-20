@@ -1,0 +1,80 @@
+---
+description: 'United Connector Framework — data integration layer for pulling worker data from enterprise systems into United. Covers Workday, LangChain, AgentOps, Formant, and a generic webhook/CSV connector.'
+---
+
+***definitions***
+
+- :Connector: is a data source integration that pulls :Worker: data from an external system into United on a configurable sync interval.
+- :ConnectorAdapter: is the interface every :Connector: must implement, with a validate method and a sync method that returns an array of :NormalisedWorker:.
+- :NormalisedWorker: is the standard worker shape that every :Connector: must return, with fields externalId, sourceConnectorId, name, type, role, status, labourCost, tasksCompleted, efficiency, uptime, and metadata.
+- :SyncInterval: is one of realtime, 1min, 5min, 15min, or 1hour.
+- :MockMode: is the fallback behaviour when no real credentials are provided. In :MockMode: every :Connector: returns realistic mock workers after a simulated delay.
+- :ConnectorInstance: is a configured and active :Connector: with status, lastSyncAt, workersImported, and interval fields.
+
+***functional specs***
+
+- The Integrations page at app/settings/page.tsx must display all registered connectors grouped by category: HRIS for human workers, Agent runtimes for AI agents, Robot fleet for robots, and Custom for CSV and webhook sources.
+
+  ***acceptance tests***
+
+  - The Integrations page renders without error when no connectors are connected.
+  - The Integrations page shows connectors in four category groups.
+  - Each connector card shows the connector name, description, worker type badge, and a Connect button when disconnected.
+
+- Each :Connector: must have a Connect modal that collects the required credential fields for that specific connector and a sync frequency selector.
+
+  ***acceptance tests***
+
+  - Clicking Connect on the Workday connector shows fields for Tenant URL, Client ID, and Client Secret.
+  - Clicking Connect on the LangChain connector shows fields for LangSmith API Key and Project Name.
+  - Clicking Connect on the Formant connector shows fields for API Token and Organisation ID.
+  - The sync frequency selector shows only the intervals supported by that connector.
+
+- The validate method of each :ConnectorAdapter: must check that all required fields are present and simulate an API authentication check with an 800ms delay. It must return verified true on success or verified false with an error message on failure.
+
+  ***acceptance tests***
+
+  - validate called with empty config returns verified false with an error naming the missing field.
+  - validate called with valid config resolves within 2000ms.
+
+- The sync method of each :ConnectorAdapter: must return an array of :NormalisedWorker: with at least 2 entries. In :MockMode: it must wait 1200ms before returning.
+
+  ***acceptance tests***
+
+  - sync returns an array with length greater than or equal to 2.
+  - sync in :MockMode: resolves within 4000ms.
+  - Every returned worker has a non-empty name, a valid type of Human or AI Agent or Robot, and a status of Active or Idle or Flagged.
+
+- After a successful connection, the :ConnectorInstance: must show status connected, the number of workers imported, the last sync timestamp, and the configured sync interval.
+
+  ***acceptance tests***
+
+  - After connecting Workday, the connector card shows status connected.
+  - After connecting Workday, the connector card shows a worker count greater than zero.
+  - After connecting Workday, the connector card shows a last sync timestamp.
+
+- The Sync now button on a connected :ConnectorInstance: must set status to syncing, call the sync method, and update workersImported and lastSyncAt on completion.
+
+  ***acceptance tests***
+
+  - Clicking Sync now changes the connector status to syncing during the operation.
+  - After sync completes, the status returns to connected.
+  - After sync completes, lastSyncAt is updated to the current time.
+
+- The Disconnect button must remove the :ConnectorInstance: after a confirmation prompt.
+
+  ***acceptance tests***
+
+  - Clicking Disconnect shows a confirmation prompt.
+  - Confirming disconnect removes the connector card from the connected state.
+
+***implementation reqs***
+
+- Create lib/connectors/types.ts exporting ConnectorCategory, ConnectorStatus, SyncInterval, ConnectorField, ConnectorDefinition, ConnectorInstance, NormalisedWorker, and ConnectorAdapter interfaces.
+- Create lib/connectors/registry.ts exporting CONNECTOR_DEFINITIONS array with at minimum Workday, Rippling, LangChain, AgentOps, OpenAI Assistants, Anthropic, Formant, Freedom Robotics, CSV, and Webhook connectors. Export getAdapter and getDefinition functions.
+- Each connector in CONNECTOR_DEFINITIONS must have id, name, description, category, logoInitials, logoColor, workerType, fields, docsUrl, syncIntervals, and defaultInterval.
+- The MockAdapter class must implement ConnectorAdapter and be used for all connectors when no real API client is available.
+- The Integrations page must use React useState to track connector instances, not a database or external store.
+- All credential fields of type password must render as HTML password inputs.
+- The Connect modal must show a three-stage flow: config form, then validating spinner, then syncing spinner, then success confirmation with worker count.
+- All new components must use existing CSS variable tokens only. No hardcoded hex colours.
