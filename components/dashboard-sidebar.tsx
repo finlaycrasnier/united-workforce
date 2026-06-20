@@ -21,6 +21,7 @@ const navItems = [
   { label: "Payroll", href: "/payroll", icon: Wallet },
   { label: "Analytics", href: "/analytics", icon: BarChart3 },
   { label: "Org Chart", href: "/org", icon: Network },
+  { label: "Integrations", href: "/settings", icon: Plug },
   { label: "Settings", href: "/settings", icon: Settings },
 ]
 
