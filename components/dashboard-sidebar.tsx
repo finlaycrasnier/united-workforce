@@ -10,6 +10,7 @@ import {
   BarChart3,
   Settings,
   Boxes,
+  Network,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
