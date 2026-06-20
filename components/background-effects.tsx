@@ -17,14 +17,14 @@ export function BackgroundEffects() {
 
   useEffect(() => {
     setParticles(
-      Array.from({ length: 65 }, (_, i) => ({
+      Array.from({ length: 40 }, (_, i) => ({
         id: i,
         left: Math.random() * 100,
-        size: 8 + Math.random() * 14,
-        duration: 18 + Math.random() * 14,
-        delay: Math.random() * 8,
+        size: 4 + Math.random() * 6,          // smaller: 4–10px
+        duration: 12 + Math.random() * 22,    // varied speed: 12–34s
+        delay: Math.random() * 8,             // positive only
         drift: (Math.random() - 0.5) * 120,
-        startBottom: Math.random() * 100,
+        startBottom: -(Math.random() * 10),   // all spawn from bottom (negative = below viewport)
       }))
     )
   }, [])
@@ -41,8 +41,8 @@ export function BackgroundEffects() {
             transform: translateY(0) translateX(0px);
             opacity: 0;
           }
-          5% { opacity: 0.55; }
-          95% { opacity: 0.55; }
+          5% { opacity: 0.5; }
+          95% { opacity: 0.5; }
           to {
             transform: translateY(-105vh) translateX(var(--drift, 0px));
             opacity: 0;
@@ -54,7 +54,7 @@ export function BackgroundEffects() {
           key={p.id}
           style={
             {
-              position: "absolute",
+              position: "fixed",
               left: `${p.left}%`,
               bottom: `${p.startBottom}vh`,
               width: `${p.size}px`,
