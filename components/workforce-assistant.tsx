@@ -31,56 +31,65 @@ export function WorkforceAssistant() {
     if (!trimmed || loading) return
 
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: trimmed }
-    const newMessages = [...messages, userMsg]
-    setMessages(newMessages)
+    const nextMessages = [...messages, userMsg]
+    setMessages(nextMessages)
     setInput("")
     setLoading(true)
+
+    const assistantId = (Date.now() + 1).toString()
+    setMessages(prev => [...prev, { id: assistantId, role: "assistant", content: "" }])
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+          messages: nextMessages.map(m => ({ role: m.role, content: m.content })),
         }),
       })
 
-      if (!res.ok) throw new Error("API error")
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
-      // Read the streaming response as text
       const reader = res.body?.getReader()
       const decoder = new TextDecoder()
-      let assistantContent = ""
-
-      const assistantId = (Date.now() + 1).toString()
-      setMessages(prev => [...prev, { id: assistantId, role: "assistant", content: "" }])
+      let full = ""
 
       if (reader) {
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
           const chunk = decoder.decode(value, { stream: true })
-          // Parse Vercel AI SDK data stream format
-          const lines = chunk.split("\n")
-          for (const line of lines) {
+          for (const line of chunk.split("\n")) {
+            // Vercel AI SDK stream: lines like  0:"hello"  or  0:" world"
             if (line.startsWith("0:")) {
               try {
-                const json = JSON.parse(line.slice(2))
-                assistantContent += json
+                const parsed = JSON.parse(line.slice(2))
+                full += parsed
                 setMessages(prev =>
-                  prev.map(m => m.id === assistantId ? { ...m, content: assistantContent } : m)
+                  prev.map(m => m.id === assistantId ? { ...m, content: full } : m)
                 )
-              } catch {}
+              } catch {
+                // skip malformed lines
+              }
             }
           }
         }
       }
+
+      // If we got nothing from the stream, show a fallback
+      if (!full) {
+        setMessages(prev =>
+          prev.map(m => m.id === assistantId ? { ...m, content: "No response received. Check your OpenAI API key in Vercel." } : m)
+        )
+      }
     } catch (err) {
-      setMessages(prev => [...prev, {
-        id: (Date.now() + 2).toString(),
-        role: "assistant",
-        content: "Sorry, something went wrong. Please try again.",
-      }])
+      console.error("Chat error:", err)
+      setMessages(prev =>
+        prev.map(m => m.id === assistantId
+          ? { ...m, content: `Error: ${err instanceof Error ? err.message : "Unknown error"}` }
+          : m
+        )
+      )
     } finally {
       setLoading(false)
     }
@@ -147,13 +156,13 @@ export function WorkforceAssistant() {
                     ? "bg-primary text-primary-foreground"
                     : "bg-card border border-border text-card-foreground"
                 )}>
-                  {m.content || (loading && m.role === "assistant" ? (
-                    <div className="flex gap-1">
+                  {m.content ? m.content : loading ? (
+                    <div className="flex gap-1 py-1">
                       <span className="size-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "0ms" }} />
                       <span className="size-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "150ms" }} />
                       <span className="size-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "300ms" }} />
                     </div>
-                  ) : "")}
+                  ) : ""}
                 </div>
               </div>
             ))}
