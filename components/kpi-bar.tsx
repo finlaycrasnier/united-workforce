@@ -44,10 +44,13 @@ export function KpiBar() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {kpis.map((kpi) => (
-        <Card key={kpi.label} className="gap-3 p-5">
+        <Card
+          key={kpi.label}
+          className="gap-3 border-0 bg-card/70 p-5 shadow-[var(--shadow-soft)] ring-0 backdrop-blur-md transition-shadow duration-300 hover:shadow-[var(--shadow-soft-lg)]"
+        >
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-muted-foreground">{kpi.label}</span>
-            <div className="flex size-9 items-center justify-center rounded-md bg-secondary text-primary">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary/15 text-primary">
               <kpi.icon className="size-4" />
             </div>
           </div>

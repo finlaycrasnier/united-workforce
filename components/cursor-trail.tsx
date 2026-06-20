@@ -2,6 +2,11 @@
 
 import { useEffect, useRef } from "react"
 
+/**
+ * A soft peach glow that smoothly trails the mouse cursor.
+ * Uses a single rAF loop with linear interpolation for a gentle lag.
+ * Disabled for touch devices and when reduced motion is preferred.
+ */
 export function CursorTrail() {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -13,6 +18,7 @@ export function CursorTrail() {
     const isTouch = window.matchMedia("(pointer: coarse)").matches
     if (reduceMotion || isTouch) return
 
+    // Start off-screen until the first move.
     let targetX = -200
     let targetY = -200
     let x = targetX
@@ -35,6 +41,7 @@ export function CursorTrail() {
     }
 
     const tick = () => {
+      // Ease toward the cursor for a soft trailing feel.
       x += (targetX - x) * 0.14
       y += (targetY - y) * 0.14
       el.style.transform = `translate3d(${x - 160}px, ${y - 160}px, 0)`

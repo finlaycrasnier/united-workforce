@@ -1,7 +1,6 @@
 "use client"
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useState } from "react"
 import {
   LayoutDashboard,
   Users,
@@ -10,29 +9,23 @@ import {
   BarChart3,
   Settings,
   Boxes,
-  Network,
-  Plug,
-  Tag,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navItems = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard },
-  { label: "Workforce", href: "/", icon: Users },
-  { label: "Billing", href: "/billing", icon: CreditCard },
-  { label: "Payroll", href: "/payroll", icon: Wallet },
-  { label: "Analytics", href: "/analytics", icon: BarChart3 },
-  { label: "Org Chart", href: "/org", icon: Network },
-  { label: "Integrations", href: "/settings", icon: Plug },
-  { label: "Pricing", href: "/pricing", icon: Tag },
-  { label: "Settings", href: "/settings", icon: Settings },
+  { label: "Dashboard", icon: LayoutDashboard },
+  { label: "Workforce", icon: Users },
+  { label: "Billing", icon: CreditCard },
+  { label: "Payroll", icon: Wallet },
+  { label: "Analytics", icon: BarChart3 },
+  { label: "Settings", icon: Settings },
 ]
 
 export function DashboardSidebar() {
-  const pathname = usePathname()
+  const [active, setActive] = useState("Workforce")
 
   return (
-    <aside className="flex w-16 flex-col items-center gap-2 border-r border-sidebar-border bg-sidebar py-4 lg:w-60 lg:items-stretch lg:px-3">
+    <aside className="sticky top-0 flex h-screen w-16 flex-col items-center gap-2 border-r border-sidebar-border/60 bg-sidebar/70 py-4 backdrop-blur-xl lg:w-60 lg:items-stretch lg:px-3">
       <div className="mb-4 flex items-center gap-2 px-0 lg:px-2">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
           <Boxes className="size-5" />
@@ -43,32 +36,29 @@ export function DashboardSidebar() {
       </div>
 
       <nav className="flex flex-1 flex-col gap-1" aria-label="Primary">
-        {navItems.map(({ label, href, icon: Icon }) => {
-          const isActive =
-            href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(href)
+        {navItems.map(({ label, icon: Icon }) => {
+          const isActive = active === label
           return (
-            <Link
+            <button
               key={label}
-              href={href}
+              onClick={() => setActive(label)}
               aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex items-center justify-center gap-3 rounded-md px-0 py-2.5 text-sm font-medium transition-colors lg:justify-start lg:px-3",
                 isActive
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-[0_4px_14px_oklch(0.78_0.13_48/0.35)]"
                   : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
               )}
               title={label}
             >
               <Icon className="size-5 shrink-0" />
               <span className="hidden lg:block">{label}</span>
-            </Link>
+            </button>
           )
         })}
       </nav>
 
-      <div className="mt-auto hidden items-center gap-3 rounded-md border border-sidebar-border px-3 py-2.5 lg:flex">
+      <div className="mt-auto hidden items-center gap-3 rounded-xl border border-sidebar-border/70 bg-card/50 px-3 py-2.5 backdrop-blur-sm lg:flex">
         <div className="flex size-8 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground">
           AC
         </div>
